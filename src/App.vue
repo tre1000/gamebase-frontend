@@ -9,7 +9,10 @@
       |
       <router-link to="/logout">Log Out</router-link>
       |
-      <router-link v-bind:to="`/userlist/${this.user_id}`">List</router-link>
+      <router-link v-bind:to="`/userlist/${this.id}`">List</router-link>
+      |
+      <button v-on:click="test()">test</button>
+      <button v-on:click="setUserId()">Set User Id</button>
     </div>
     <router-view />
   </div>
@@ -42,8 +45,19 @@
 export default {
   data: function () {
     return {
-      user_id: localStorage.getItem("user_id"),
+      id: localStorage.getItem("user_id"),
     };
+  },
+  updated() {
+    this.setUserId();
+  },
+  methods: {
+    test: function () {
+      console.log(localStorage.getItem("user_id"));
+    },
+    setUserId: function () {
+      this.id = localStorage.getItem("user_id");
+    },
   },
 };
 </script>

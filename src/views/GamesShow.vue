@@ -1,7 +1,6 @@
 <template>
   <div class="game-page">
     <div>
-      <button v-on:click="test()">Test</button>
       <h1>{{ game.title }}</h1>
       <img class="box_art" v-bind:src="`${game.box_art}`" alt="No box art" />
       <hr />

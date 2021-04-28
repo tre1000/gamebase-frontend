@@ -1,7 +1,7 @@
 <template>
   <div class="game-page">
     <div>
-      <button @click="test()">Test</button>
+      <!-- <button @click="test()">Test</button> -->
       <h1>{{ game.title }}</h1>
       <img class="box_art" v-bind:src="`${game.box_art}`" alt="No box art" />
       <hr />
@@ -15,9 +15,44 @@
         </select>
         <!-- conditional button -->
         <div>
-          <button v-if="isGameOnList()" v-on:click="updateList()">Update list</button>
+          <div v-if="isGameOnList()">
+            <button v-on:click="updateList()">Update list</button>
+            <br />
+            <div v-if="currentStatus === 'completed' || currentStatus === 'dropped'">
+              <button v-on:click="showReviewModal()">Rate/Review</button>
+            </div>
+          </div>
           <button v-else v-on:click="addGameToList()">Add To List</button>
         </div>
+
+        <!-- modals -->
+        <div>
+          <dialog id="leave-review">
+            <form method="dialog">
+              <h1>Rate/Review</h1>
+              <p>Rating:</p>
+              <select v-model="rating" name="rating" id="rating">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+              <p>Review:</p>
+              <textarea v-model="review"></textarea>
+              <br />
+              <button v-on:click="updateList()">Submit</button>
+              <br />
+              <button>Exit</button>
+            </form>
+          </dialog>
+        </div>
+        <!-- end modals -->
       </div>
       <!-- end conditional button -->
       <h2>Average User Rating: {{ game.avg_user_rating }}</h2>
@@ -50,13 +85,15 @@ export default {
     return {
       game: {},
       selectedStatus: "",
-      rating: "8",
+      currentStatus: "",
       completionHours: 0,
       completionMinutes: 0,
       instance: [],
       userGameIds: [],
       userGames: [],
       userGameInstanceId: null,
+      review: null,
+      rating: null,
     };
   },
   created: function () {
@@ -68,7 +105,6 @@ export default {
     this.generateInstance();
   },
   updated: function () {
-    this.getUserGamesIdList();
     this.isGameOnList();
   },
   methods: {
@@ -83,6 +119,9 @@ export default {
         for (var userGame in this.userGames) {
           if (this.userGames[userGame].game_id === this.game.id) {
             this.selectedStatus = this.userGames[userGame].status;
+            this.currentStatus = this.userGames[userGame].status;
+            this.review = this.userGames[userGame].review;
+            this.rating = this.userGames[userGame].rating;
             this.userGameInstanceId = this.userGames[userGame].id;
           }
         }
@@ -96,7 +135,6 @@ export default {
         user_id: localStorage.getItem("user_id"),
         game_id: this.game.id,
         status: this.selectedStatus,
-        review: this.review,
         completion_hours: this.completionHours,
         completion_minutes: this.completionMinutes,
         instance: this.instance,
@@ -105,15 +143,20 @@ export default {
         .post("/api/user_games", params)
         .then((response) => {
           console.log("Game added to list!", response.data);
+          this.setStatus();
+          this.userGameIds.push(this.game.id);
         })
         .catch((error) => console.log(error.response.data));
     },
     updateList: function () {
       var params = {
         status: this.selectedStatus,
+        review: this.review,
+        rating: this.rating,
       };
       axios.patch("/api/user_games/" + this.userGameInstanceId, params).then((response) => {
         console.log(response.data);
+        this.setStatus();
       });
     },
     getUserGamesIdList: function () {
@@ -137,12 +180,12 @@ export default {
         return true;
       }
     },
+    showReviewModal: function () {
+      document.querySelector("#leave-review").showModal();
+    },
     test: function () {
       console.log(this.userGameIds);
       console.log(this.isGameOnList());
-      console.log(this.$route.params.id);
-      console.log(this.selectedStatus);
-      console.log(localStorage.getItem("user_id") === null);
       console.log(this.userGameInstanceId);
     },
   },

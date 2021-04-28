@@ -5,11 +5,11 @@
       |
       <router-link to="/signup">Sign Up</router-link>
       |
-      <router-link to="/login">Log In</router-link>
+      <router-link v-if="id === null" to="/login">Log In</router-link>
       |
-      <router-link to="/logout">Log Out</router-link>
+      <router-link v-if="id !== null" to="/logout">Log Out</router-link>
       |
-      <router-link v-bind:to="`/userlist/${this.id}`">List</router-link>
+      <router-link v-if="id !== null" v-bind:to="`/userlist/${this.id}`">My List</router-link>
     </div>
     <router-view />
   </div>

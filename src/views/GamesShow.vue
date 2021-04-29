@@ -79,6 +79,7 @@
 </style>
 
 <script>
+//This is a mess. Please refactor
 import axios from "axios";
 export default {
   data: function () {

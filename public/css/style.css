@@ -1512,4 +1512,7 @@ ol {
   .page-info-section .pi-content h2 {
     font-size: 40px;
   }
+  .game-title {
+    padding-left: 100px;
+  }
 }

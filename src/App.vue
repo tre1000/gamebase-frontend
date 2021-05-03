@@ -8,10 +8,13 @@
           <img src="img/logo.png" alt="" />
         </a>
         <!-- add conditional here to render username/logout option vs login -->
-        <div class="user-panel">
+        <div class="user-panel" v-if="id === null">
           <a href="/login">Login</a>
           /
           <a href="/signup">Register</a>
+        </div>
+        <div class="user-panel" v-else>
+          <a href="/logout">Log out</a>
         </div>
         <!-- responsive -->
         <div class="nav-switch">

@@ -140,11 +140,8 @@
     <footer class="footer-section">
       <div class="container">
         <ul class="footer-menu">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="review.html">Games</a></li>
-          <li><a href="categories.html">Blog</a></li>
-          <li><a href="community.html">Forums</a></li>
-          <li><a href="contact.html">Contact</a></li>
+          <li><a href="/">Home</a></li>
+          <li><router-link v-bind:to="`/userlist/${id}`">My List</router-link></li>
         </ul>
         <p class="copyright">
           <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->

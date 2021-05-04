@@ -120,7 +120,9 @@
                         <p>Review:</p>
                         <textarea v-model="review"></textarea>
                         <br />
-                        <button v-on:click="updateList()">Submit</button>
+                        <div v-if="rating !== null">
+                          <button v-on:click="updateList()">Submit</button>
+                        </div>
                         <br />
                         <button>Exit</button>
                       </form>
@@ -140,59 +142,25 @@
                 </p>
               </div>
               <div class="comment-warp">
-                <h4 class="comment-title">Top Coments</h4>
-                <ul class="comment-list">
+                <h4 class="comment-title">Reviews</h4>
+                <ul class="comment-list" v-for="userGame in reviews_array" :key="userGame.id">
                   <li>
                     <div class="comment">
                       <div class="comment-avator set-bg" data-setbg="img/authors/1.jpg"></div>
                       <div class="comment-content">
-                        <h5>
-                          James Smith
-                          <span>June 21, 2018</span>
-                        </h5>
+                        <router-link v-bind:to="`/userlist/${userGame.user_id}`">
+                          <h4>
+                            {{ usersById[userGame.user_id] }}:
+                            <span>{{ userGame.rating }}</span>
+                          </h4>
+                        </router-link>
                         <p>
-                          Donec venenatis at eros sit amet aliquam. Donec vel orci efficitur, dictum nisl vitae,
-                          scelerisque nibh. Curabitur eget ipsum pulvinar nunc gravida interdum.
+                          {{ userGame.review }}
                         </p>
-                        <a href="" class="reply">Reply</a>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="comment">
-                      <div class="comment-avator set-bg" data-setbg="img/authors/2.jpg"></div>
-                      <div class="comment-content">
-                        <h5>
-                          James Smith
-                          <span>June 21, 2018</span>
-                        </h5>
-                        <p>
-                          Donec venenatis at eros sit amet aliquam. Donec vel orci efficitur, dictum nisl vitae,
-                          scelerisque nibh. Curabitur eget ipsum pulvinar nunc gravida interdum.
-                        </p>
-                        <a href="" class="reply">Reply</a>
                       </div>
                     </div>
                   </li>
                 </ul>
-              </div>
-              <div class="comment-form-warp">
-                <h4 class="comment-title">Leave Your Comment</h4>
-                <form class="comment-form">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <input type="text" placeholder="Name" />
-                    </div>
-                    <div class="col-md-6">
-                      <input type="email" placeholder="Email" />
-                    </div>
-                    <div class="col-lg-12">
-                      <input type="text" placeholder="Subject" />
-                      <textarea placeholder="Message"></textarea>
-                      <button class="site-btn btn-sm">Send</button>
-                    </div>
-                  </div>
-                </form>
               </div>
             </div>
             <!-- sidebar -->
@@ -240,68 +208,6 @@
                   </div>
                 </div>
               </div>
-              <!-- widget -->
-              <div class="widget-item">
-                <h4 class="widget-title">Top Comments</h4>
-                <div class="top-comment">
-                  <div class="tc-item">
-                    <div class="tc-thumb set-bg" data-setbg="img/authors/1.jpg"></div>
-                    <div class="tc-content">
-                      <p>
-                        <a href="#">James Smith</a>
-                        <span>on</span>
-                        Lorem consec ipsum dolor sit amet, co
-                      </p>
-                      <div class="tc-date">June 21, 2018</div>
-                    </div>
-                  </div>
-                  <div class="tc-item">
-                    <div class="tc-thumb set-bg" data-setbg="img/authors/2.jpg"></div>
-                    <div class="tc-content">
-                      <p>
-                        <a href="#">Michael James</a>
-                        <span>on</span>
-                        Cras sit amet sapien aliquam
-                      </p>
-                      <div class="tc-date">June 21, 2018</div>
-                    </div>
-                  </div>
-                  <div class="tc-item">
-                    <div class="tc-thumb set-bg" data-setbg="img/authors/3.jpg"></div>
-                    <div class="tc-content">
-                      <p>
-                        <a href="#">Justin More</a>
-                        <span>on</span>
-                        Lorem ipsum dolor consecsit amet, co
-                      </p>
-                      <div class="tc-date">June 21, 2018</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- widget -->
-              <div class="widget-item">
-                <div class="feature-item set-bg" data-setbg="img/features/1.jpg">
-                  <span class="cata new">new</span>
-                  <div class="fi-content text-white">
-                    <h5><a href="#">Suspendisse ut justo tem por, rutrum</a></h5>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                    <a href="#" class="fi-comment">3 Comments</a>
-                  </div>
-                </div>
-              </div>
-              <!-- widget -->
-              <div class="widget-item">
-                <div class="review-item">
-                  <div class="review-cover set-bg" data-setbg="img/review/1.jpg">
-                    <div class="score yellow">9.3</div>
-                  </div>
-                  <div class="review-text">
-                    <h5>Assasin’’s Creed</h5>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisc ing ipsum dolor sit ame.</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -340,12 +246,16 @@ export default {
       userGameInstanceId: null,
       review: null,
       rating: null,
+      reviews_array: [],
+      usersById: {},
     };
   },
   created: function () {
     this.showGame();
     this.getUserGamesIdList();
     this.setStatus();
+    this.getGameReviews();
+    this.getUsersById();
   },
   mounted: function () {
     this.generateInstance();
@@ -421,6 +331,20 @@ export default {
       }
       return false;
     },
+    getGameReviews: function () {
+      axios.get("/api/user_games/reviews/" + this.$route.params.id).then((response) => {
+        this.reviews_array = response.data;
+        console.log(this.reviews_array);
+      });
+    },
+    getUsersById: function () {
+      axios.get("/api/users").then((response) => {
+        for (var user in response.data) {
+          this.usersById[response.data[user].id] = response.data[user].name;
+        }
+        console.log(this.usersById);
+      });
+    },
     userIsLoggedIn: function () {
       if (localStorage.getItem("user_id") !== null) {
         return true;
@@ -433,6 +357,7 @@ export default {
       console.log(this.userGameIds);
       console.log(this.isGameOnList());
       console.log(this.userGameInstanceId);
+      console.log();
     },
   },
 };

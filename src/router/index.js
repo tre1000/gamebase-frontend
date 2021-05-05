@@ -6,6 +6,7 @@ import Login from "../views/Login.vue";
 import Logout from "../views/Logout.vue";
 import UserList from "../views/UserList.vue";
 import GamesShow from "../views/GamesShow.vue";
+import GamesShowTest from "../views/GamesShowTest.vue";
 
 Vue.use(VueRouter);
 
@@ -16,6 +17,7 @@ const routes = [
   { path: "/logout", name: "Logout", component: Logout },
   //these go after everything that doesn't need a wildcard
   { path: "/userlist/:id", name: "UserList", component: UserList },
+  { path: "/games/test/:id", name: "GamesShowTest", component: GamesShowTest },
   { path: "/games/:id", name: "GamesShow", component: GamesShow },
 ];
 

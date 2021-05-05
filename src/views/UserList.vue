@@ -27,34 +27,23 @@
           <h2>Playing</h2>
         </div>
         <div class="row">
-          <div class="col-lg-3 col-md-6" v-for="game in userGames" :key="game.id">
+          <div class="col-lg-3 col-md-6" v-for="game in playing" :key="game.id">
             <div class="review-item">
               <div class="review-cover set-bg" data-setbg="img/review/1.jpg">
                 <router-link v-bind:to="`/games/${game.game_info.id}`">
                   <img v-bind:src="`${game.game_info.box_art}`" alt="no image" class="review-cover set-bg" />
                 </router-link>
-
-                <!-- change rating bubble color based on score -->
-                <div v-if="game.rating < 6.0" class="score red">
-                  {{ game.rating }}
+                <div class="review-text">
+                  <h5>{{ game.game_info.title }}</h5>
+                  <br />
                 </div>
-                <div v-else-if="game.rating >= 6.0 && game.rating < 8.0" class="score yellow">
-                  {{ game.rating }}
-                </div>
-                <div v-else-if="game.rating >= 8.0" class="score green">
-                  {{ game.rating }}
-                </div>
-                <!-- end conditional bubble color -->
-              </div>
-              <div class="review-text">
-                <h5>{{ game.game_info.title }}</h5>
-                <br />
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
+    <!-------->
     <section class="review-section spad set-bg" data-setbg="img/review-bg.png">
       <div class="container">
         <div class="section-title">
@@ -62,7 +51,7 @@
           <h2>Completed</h2>
         </div>
         <div class="row">
-          <div class="col-lg-3 col-md-6" v-for="game in userGames" :key="game.id">
+          <div class="col-lg-3 col-md-6" v-for="game in completed" :key="game.id">
             <div class="review-item">
               <div class="review-cover set-bg" data-setbg="img/review/1.jpg">
                 <router-link v-bind:to="`/games/${game.game_info.id}`">
@@ -90,7 +79,90 @@
         </div>
       </div>
     </section>
-    <!-- Review section end -->
+    <!------------>
+    <section class="review-section spad set-bg" data-setbg="img/review-bg.png">
+      <div class="container">
+        <div class="section-title">
+          <!-- <div class="cata new">new</div> -->
+          <h2>Plan To Play</h2>
+        </div>
+        <div class="row">
+          <div class="col-lg-3 col-md-6" v-for="game in planToPlay" :key="game.id">
+            <div class="review-item">
+              <div class="review-cover set-bg" data-setbg="img/review/1.jpg">
+                <router-link v-bind:to="`/games/${game.game_info.id}`">
+                  <img v-bind:src="`${game.game_info.box_art}`" alt="no image" class="review-cover set-bg" />
+                </router-link>
+                <div class="review-text">
+                  <h5>{{ game.game_info.title }}</h5>
+                  <br />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-------------->
+    <section class="review-section spad set-bg" data-setbg="img/review-bg.png">
+      <div class="container">
+        <div class="section-title">
+          <!-- <div class="cata new">new</div> -->
+          <h2>On Hold</h2>
+        </div>
+        <div class="row">
+          <div class="col-lg-3 col-md-6" v-for="game in onHold" :key="game.id">
+            <div class="review-item">
+              <div class="review-cover set-bg" data-setbg="img/review/1.jpg">
+                <router-link v-bind:to="`/games/${game.game_info.id}`">
+                  <img v-bind:src="`${game.game_info.box_art}`" alt="no image" class="review-cover set-bg" />
+                </router-link>
+                <div class="review-text">
+                  <h5>{{ game.game_info.title }}</h5>
+                  <br />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!------->
+    <section class="review-section spad set-bg" data-setbg="img/review-bg.png">
+      <div class="container">
+        <div class="section-title">
+          <!-- <div class="cata new">new</div> -->
+          <h2>Dropped</h2>
+        </div>
+        <div class="row">
+          <div class="col-lg-3 col-md-6" v-for="game in dropped" :key="game.id">
+            <div class="review-item">
+              <div class="review-cover set-bg" data-setbg="img/review/1.jpg">
+                <router-link v-bind:to="`/games/${game.game_info.id}`">
+                  <img v-bind:src="`${game.game_info.box_art}`" alt="no image" class="review-cover set-bg" />
+                </router-link>
+
+                <!-- change rating bubble color based on score -->
+                <div v-if="game.rating < 6.0" class="score red">
+                  {{ game.rating }}
+                </div>
+                <div v-else-if="game.rating >= 6.0 && game.rating < 8.0" class="score yellow">
+                  {{ game.rating }}
+                </div>
+                <div v-else-if="game.rating >= 8.0" class="score green">
+                  {{ game.rating }}
+                </div>
+                <!-- end conditional bubble color -->
+              </div>
+              <div class="review-text">
+                <h5>{{ game.game_info.title }}</h5>
+                <br />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -117,7 +189,19 @@ export default {
   methods: {
     indexUserGames: function () {
       axios.get("/api/user_games/" + this.$route.params.id).then((response) => {
-        this.userGames = response.data;
+        for (var userGame in response.data) {
+          if (response.data[userGame].status === "plan to play") {
+            this.planToPlay.push(response.data[userGame]);
+          } else if (response.data[userGame].status === "playing") {
+            this.playing.push(response.data[userGame]);
+          } else if (response.data[userGame].status === "completed") {
+            this.completed.push(response.data[userGame]);
+          } else if (response.data[userGame].status === "dropped") {
+            this.dropped.push(response.data[userGame]);
+          } else {
+            this.onHold.push(response.data[userGame]);
+          }
+        }
       });
     },
     setUserId: function () {

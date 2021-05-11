@@ -59,10 +59,37 @@
                         <textarea v-model="review"></textarea>
                         <br />
                         <div v-if="rating !== null">
-                          <button v-on:click="updateList()">Submit</button>
+                          <button v-on:click="updateCompletionInfo()">Submit</button>
                         </div>
                         <br />
                         <button>Exit</button>
+                      </form>
+                    </dialog>
+                  </div>
+
+                  <div>
+                    <dialog id="add-success">
+                      <form method="dialog">
+                        <p>Game successfully added</p>
+                        <button>Ok</button>
+                      </form>
+                    </dialog>
+                  </div>
+
+                  <div>
+                    <dialog id="update-success">
+                      <form method="dialog">
+                        <p>List successfully updated</p>
+                        <button>Ok</button>
+                      </form>
+                    </dialog>
+                  </div>
+
+                  <div>
+                    <dialog id="review-success">
+                      <form method="dialog">
+                        <p>Rating/review successfully added</p>
+                        <button>Ok</button>
                       </form>
                     </dialog>
                   </div>
@@ -169,6 +196,7 @@
 
 <script>
 //This is a mess. Please refactor
+//Make a decision regarding completion time. It wouldn't be particularaly difficult to implement. Just do it.
 import axios from "axios";
 export default {
   data: function () {
@@ -176,7 +204,7 @@ export default {
       game: {},
       selectedStatus: "plan to play",
       currentStatus: "",
-      completionHours: 0,
+      completionHours: 1,
       completionMinutes: 0,
       instance: [],
       userGameIds: [],
@@ -191,15 +219,17 @@ export default {
   created: function () {
     this.showGame();
     this.getUserGamesIdList();
-    this.setStatus();
+    this.setInfo();
     this.getGameReviews();
     this.getUsersById();
   },
   mounted: function () {
     this.generateInstance();
   },
-  updated: function () {
-    this.isGameOnList();
+  watch: {
+    currentStatus: function () {
+      this.isGameOnList();
+    },
   },
   methods: {
     showGame: function () {
@@ -207,7 +237,8 @@ export default {
         this.game = response.data;
       });
     },
-    setStatus: function () {
+    // this is setting more than just the status. Maybe call it something broader like get user games info or something.
+    setInfo: function () {
       axios.get("/api/user_games/" + localStorage.getItem("user_id")).then((response) => {
         this.userGames = response.data;
         for (var userGame in this.userGames) {
@@ -221,6 +252,7 @@ export default {
         }
       });
     },
+    //can this become a function called in addGamesToList that simply returns the instance?
     generateInstance: function () {
       this.instance = [localStorage.getItem("user_id"), this.$route.params.id];
     },
@@ -229,30 +261,40 @@ export default {
         user_id: localStorage.getItem("user_id"),
         game_id: this.game.id,
         status: this.selectedStatus,
-        completion_hours: this.completionHours,
-        completion_minutes: this.completionMinutes,
         instance: this.instance,
       };
       axios
         .post("/api/user_games", params)
         .then((response) => {
           console.log("Game added to list!", response.data);
-          this.setStatus();
+          this.setInfo();
           this.userGameIds.push(this.game.id);
+          document.querySelector("#add-success").showModal();
         })
         .catch((error) => console.log(error.response.data));
     },
+    //may want to break this into two functions so as not to accidentally change rating/review when updating list
     updateList: function () {
       var params = {
         status: this.selectedStatus,
+      };
+      axios.patch("/api/user_games/" + this.userGameInstanceId, params).then((response) => {
+        console.log(response.data);
+        this.setInfo();
+        document.querySelector("#update-success").showModal();
+      });
+    },
+    updateCompletionInfo: function () {
+      var params = {
         review: this.review,
         rating: this.rating,
       };
       axios.patch("/api/user_games/" + this.userGameInstanceId, params).then((response) => {
         console.log(response.data);
-        this.setStatus();
+        document.querySelector("#review-success").showModal();
       });
     },
+    //can this be done in getUserGamesInformation?
     getUserGamesIdList: function () {
       axios.get("/api/user_games/" + localStorage.getItem("user_id")).then((response) => {
         this.userGameIds = [];
@@ -261,6 +303,7 @@ export default {
         }
       });
     },
+    //maybe make this a computed function so the reactivity is always there without having to constantly check.
     isGameOnList: function () {
       for (var i = 0; i < this.userGameIds.length; i++) {
         if (this.userGameIds[i] === this.game.id) {
@@ -269,6 +312,7 @@ export default {
       }
       return false;
     },
+    //think about grouping things based on axios requests
     getGameReviews: function () {
       axios.get("/api/user_games/reviews/" + this.$route.params.id).then((response) => {
         this.reviews_array = response.data;

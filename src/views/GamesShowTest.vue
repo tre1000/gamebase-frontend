@@ -169,7 +169,6 @@
 
 <script>
 //This is a mess. Please refactor
-//Make a decision regarding completion time. It wouldn't be particularaly difficult to implement. Just do it.
 import axios from "axios";
 export default {
   data: function () {
@@ -208,7 +207,6 @@ export default {
         this.game = response.data;
       });
     },
-    // this is setting more than just the status. Maybe call it something broader like get user games info or something.
     setStatus: function () {
       axios.get("/api/user_games/" + localStorage.getItem("user_id")).then((response) => {
         this.userGames = response.data;
@@ -223,7 +221,6 @@ export default {
         }
       });
     },
-    //can this become a function called in addGamesToList that simply returns the instance?
     generateInstance: function () {
       this.instance = [localStorage.getItem("user_id"), this.$route.params.id];
     },
@@ -245,7 +242,6 @@ export default {
         })
         .catch((error) => console.log(error.response.data));
     },
-    //may want to break this into two functions so as not to accidentally change rating/review when updating list
     updateList: function () {
       var params = {
         status: this.selectedStatus,
@@ -257,7 +253,6 @@ export default {
         this.setStatus();
       });
     },
-    //can this be done in getUserGamesInformation?
     getUserGamesIdList: function () {
       axios.get("/api/user_games/" + localStorage.getItem("user_id")).then((response) => {
         this.userGameIds = [];
@@ -266,7 +261,6 @@ export default {
         }
       });
     },
-    //maybe make this a computed function so the reactivity is always there without having to constantly check.
     isGameOnList: function () {
       for (var i = 0; i < this.userGameIds.length; i++) {
         if (this.userGameIds[i] === this.game.id) {
@@ -275,7 +269,6 @@ export default {
       }
       return false;
     },
-    //think about grouping things based on axios requests
     getGameReviews: function () {
       axios.get("/api/user_games/reviews/" + this.$route.params.id).then((response) => {
         this.reviews_array = response.data;

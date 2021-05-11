@@ -24,7 +24,7 @@
         <nav class="main-menu">
           <ul>
             <li><a href="/">Home</a></li>
-            <li><router-link v-bind:to="`/userlist/${id}`">My List</router-link></li>
+            <li v-if="id !== null"><router-link v-bind:to="`/userlist/${id}`">My List</router-link></li>
             <!-- <li><a href="review.html">Games</a></li>
             <li><a href="categories.html">Blog</a></li>
             <li><a href="community.html">Forums</a></li>
